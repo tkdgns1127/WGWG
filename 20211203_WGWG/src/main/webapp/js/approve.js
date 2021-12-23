@@ -1,13 +1,13 @@
 /**
  * 
  */
-//상세 페이지로 데이터 전달
-function detailAjax(no, docBox) {
-	var sendData = { "docno": no, "docBox": docBox }
-
-	$("#content").load("./docdetail.do?docno=" + no + "&docBox=" + docBox);
-
-}
+////상세 페이지로 데이터 전달
+//function detailAjax(no, docBox) {
+//	var sendData = { "docno": no, "docBox": docBox }
+//
+//	$("#content").load("./docdetail.do?docno=" + no + "&docBox=" + docBox);
+//
+//}
 
 
 
@@ -17,21 +17,27 @@ function detailMove(state){
 		
 		var no = $(this).find('td').eq(0).text();
 		console.log(no);
-		detailAjax(no,state);
+		$("#content").load("./docdetail.do?docno=" + no + "&docBox=" + state);
 		
 	});
 }
 
 //문서 제목으로 검색
-function search(active){
-	
-	$('#searchbtn').click(function(){
-
+function search(){
+		alert('검색할게');
 	
 		$('#index').attr('value',0);
 		$('#pageStartNum').attr('value',1);
-		pagingAjax();
-	});
+		AppPaging();
+	
+}
+function search1(){
+		alert('검색할게');
+	
+		$('#index').attr('value',0);
+		$('#pageStartNum').attr('value',1);
+		AppPaging();
+	
 }
 
 function detail(no){

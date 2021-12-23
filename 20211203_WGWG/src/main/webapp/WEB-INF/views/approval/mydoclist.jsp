@@ -15,11 +15,63 @@
 <script type="text/javascript">
 	$(document).ready(function(){
 		
+// 		var active = ${paging.active}
+// 		console.log("active : " + active);
+// 		if(active == 2){
+// 				$('#li1').removeClass('active');
+// 				$('#li2').addClass('active');
+// 				$('#li3').removeClass('active');
+// 				$('#li4').removeClass('active');
+			
+// 				$('#all').removeClass('active in');
+// 				$('#menu1').addClass('active in');
+// 				$('#menu2').removeClass('active in');
+// 				$('#menu3').removeClass('active in');
+				
+// 		}else if(active == 3){
+// 			$('#li1').removeClass('active');
+// 			$('#li2').removeClass('active');
+// 			$('#li3').addClass('active');
+// 			$('#li4').removeClass('active');
+		
+			
+// 			$('#all').removeClass('active');
+// 			$('#menu1').removeClass('active');
+// 			$('#menu2').addClass('active');
+// 			$('#menu3').removeClass('active');
+			
+// 		}else if(active == 4){
+// 			$('#li1').removeClass('active');
+// 			$('#li2').removeClass('active');
+// 			$('#li3').removeClass('active');
+// 			$('#li4').addClass('active');
+		
+			
+// 			$('#all').removeClass('active');
+// 			$('#menu1').removeClass('active');
+// 			$('#menu2').removeClass('active');
+// 			$('#menu3').addClass('active');
+			
+// 		}else{
+// 			$('#li1').addClass('active');
+// 			$('#li2').removeClass('active');
+// 			$('#li3').removeClass('active');
+// 			$('#li4').removeClass('active');
+		
+			
+// 			$('#all').addClass('active');
+// 			$('#menu1').removeClass('active');
+// 			$('#menu2').removeClass('active');
+// 			$('#menu3').removeClass('active');
+			
+// 		}
+		
+		
 		var state = '개인';
 		
 		detailMove(state);
 		
-		search();
+// 		search();
 	});
 </script>
 
@@ -75,19 +127,46 @@ th, td {
 		<br>
 		
 		<ul class="nav nav-pills" style="height:18px;">
- 			<li class="active" ><a data-toggle="pill" href="#all" style="font-size: 0.8rem;">전체</a></li>
-			<li><a data-toggle="pill" href="#menu1" style="font-size: 0.8rem;">진행</a></li>
-			<li><a data-toggle="pill" href="#menu2" style="font-size: 0.8rem;">완료</a></li>
-			<li><a data-toggle="pill" href="#menu3" style="font-size: 0.8rem;">반려</a></li>
+		<c:if test="${paging.active  == 1}">
+ 			<li id="li1"  val="1" class="active" ><a data-toggle="pill" href="#all" style="font-size: 0.8rem;">전체</a></li>		
+		</c:if>
+		<c:if test="${paging.active  != 1}">
+ 			<li id="li1"  val="1" class="active" ><a data-toggle="pill" href="#all" style="font-size: 0.8rem;">전체</a></li>		
+		</c:if>
+		<c:if test="${paging.active  == 2}">
+			<li id="li2" val="2"><a data-toggle="pill" href="#menu1" style="font-size: 0.8rem;">진행</a></li>		
+		</c:if>
+		<c:if test="${paging.active  != 2}">
+			<li id="li2" val="2"><a data-toggle="pill" href="#menu1" style="font-size: 0.8rem;">진행</a></li>		
+		</c:if>
+		<c:if test="${paging.active  == 3}">
+			<li id="li3" val="3"><a data-toggle="pill" href="#menu2" style="font-size: 0.8rem;">완료</a></li>		
+		</c:if>
+		<c:if test="${paging.active  != 3}">
+			<li id="li3" val="3"><a data-toggle="pill" href="#menu2" style="font-size: 0.8rem;">완료</a></li>		
+		</c:if>
+		<c:if test="${paging.active  == 4}">
+			<li id="li4" val="4"><a data-toggle="pill" href="#menu3" style="font-size: 0.8rem;">반려</a></li>		
+		</c:if>
+		<c:if test="${paging.active  != 4}">
+			<li id="li4" val="4"><a data-toggle="pill" href="#menu3" style="font-size: 0.8rem;">반려</a></li>		
+		</c:if>
+		
 			<div id="search">
 			<input type="text" placeholder="문서제목으로 검색" id="searchKeyword" name="title" value="${paging.searchkeyword}">
-			<input type="submit" id="searchbtn" value="검색">
+			<input type="button" id="searchbtn" value="검색" onclick="search1();">
 			</div>
 		</ul>
 		
 		<hr>
 		<div class="tab-content" style="margin-top: 20px;">
-			<div id="all" class="tab-pane in active">
+			<c:if test="${paging.active  == 1}">
+				<div id="all" class="tab-pane active">
+			</c:if>
+			<c:if test="${paging.active  != 1}">
+				<div id="all" class="tab-pane">
+			</c:if>
+			
 					<table class="table table-hover">
 						<thead style="text-align:center">
 							<tr style="text-align:center">
@@ -114,7 +193,12 @@ th, td {
 					</table>
 				</div>
 				
-			<div id="menu1" class="tab-pane">
+			<c:if test="${paging.active  == 2}">
+				<div id="menu1" class="tab-pane active">
+			</c:if>
+			<c:if test="${paging.active  != 2}">
+				<div id="menu1" class="tab-pane">
+			</c:if>
 				<table class="table table-hover">
 						<thead>
 							<tr>
@@ -142,7 +226,12 @@ th, td {
 						</tbody>
 					</table>
 			</div>
-			<div id="menu2" class="tab-pane">
+			<c:if test="${paging.active  == 3}">
+				<div id="menu2" class="tab-pane active">
+			</c:if>
+			<c:if test="${paging.active  != 3}">
+				<div id="menu2" class="tab-pane">
+			</c:if>
 					<table class="table table-hover">
 						<thead>
 							<tr>
@@ -170,7 +259,12 @@ th, td {
 						</tbody>
 					</table>
 			</div>
-			<div id="menu3" class="tab-pane">
+			<c:if test="${paging.active  == 4}">
+				<div id="menu3" class="tab-pane active">
+			</c:if>
+			<c:if test="${paging.active  != 4}">
+				<div id="menu3" class="tab-pane">
+			</c:if>
 				<table class="table table-hover">
 						<thead>
 							<tr>

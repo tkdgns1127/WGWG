@@ -173,8 +173,12 @@
 	</select>
 	
 	<!-- 결재 대기함 -->
-	<select id="selectListWait" parameterType="ApproverVo" resultType="DocVo">
+	<select id="selectListWait" parameterMap="DocPaging" resultType="DocVo">
 	SELECT * 
+		FROM (
+			SELECT ROWNUM RN, A.*
+					FROM(
+					SELECT * 
 	FROM APPROVAL_DOCUMENT ad 
 		WHERE APP_LINE_NO IN (
 			SELECT APP_LINE_NO 
@@ -186,7 +190,36 @@
 		                        approval_dt VARCHAR(200) PATH '$.approval_dt',
 		                        waiting VARCHAR2(4) PATH '$.waiting',
 		                        signimg VARCHAR2(4000) PATH '$.signimg')) AS U
-		                        WHERE U.emp_no = #{emp_no} AND U.waiting = #{waiting}) order by APP_DOC_NO DESC
+		                        WHERE U.emp_no = #{emp_no} AND U.waiting = 'y' 
+		                        <if test="paging.searchkeyword != null and paging.searchkeyword != ''">
+			 						and LOWER(app_doc_title) LIKE LOWER('%'||#{paging.searchkeyword}||'%')
+			 					</if>
+		                        )order by APP_DOC_NO DESC
+					)A	
+					) WHERE RN BETWEEN #{paging.start} AND #{paging.last}
+	</select>
+	
+	<!-- 결재대기함 카운트 -->
+	<select id="selectTotalPagingWait" parameterMap="DocPaging" resultType="java.lang.Integer">
+	
+SELECT NVL(count(*),0) from(SELECT * 
+	FROM APPROVAL_DOCUMENT ad 
+		WHERE APP_LINE_NO IN (
+			SELECT APP_LINE_NO 
+	  			FROM APPROVAL_LINE al, 
+		    		JSON_TABLE(al.APPROVAL , '$.APPROVAL[*]'
+		               COLUMNS (emp_no VARCHAR2(100) PATH '$.emp_no',
+		                        approval_st  VARCHAR(20) PATH '$.approval_st',
+		                        reason  VARCHAR(200) PATH '$.reason',
+		                        approval_dt VARCHAR(200) PATH '$.approval_dt',
+		                        waiting VARCHAR2(4) PATH '$.waiting',
+		                        signimg VARCHAR2(4000) PATH '$.signimg')) AS U
+		                        WHERE U.emp_no = #{emp_no} AND U.waiting = 'y' 
+		                        <if test="paging.searchkeyword != null and paging.searchkeyword != ''">
+			 						AND LOWER(app_doc_title) LIKE LOWER('%'||#{paging.searchkeyword}||'%')
+								 </if>  
+		                        )order by APP_DOC_NO DESC)
+		                       
 	</select>
 	
 	<!-- 문서 상태 업데이트 -->
@@ -283,6 +316,11 @@
 				waiting varchar2(200) PATH '$.waiting',
 				signimg varchar2(200) PATH '$.signimg'
 			)	)WHERE al.APP_LINE_NO = #{app_line_no}
+   </select>
+   
+   <select id="selectLineNo" resultType="com.min.edu.vo.approval.Approval_line">
+   		SELECT * FROM 	
+			APPROVAL_LINE al WHERE APP_LINE_NO = #{app_line_no}
    </select>
    
 </mapper>

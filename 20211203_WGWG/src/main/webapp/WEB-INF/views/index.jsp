@@ -16,8 +16,8 @@
 	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 <script
 	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-<link rel="shortcut icon" href="img/favicon2.ico" type="image/x-icon" >
-<link rel="icon" href="img/favicon2.ico" type="image/x-icon" sizes="16x16">
+<link rel="shortcut icon" href="img/favicon4.ico" type="image/x-icon" >
+<link rel="icon" href="img/favicon4.ico" type="image/x-icon" sizes="16x16">
 
 
 <script type="text/javascript">
@@ -374,7 +374,7 @@ i {
 					<li class="w3-bar-item w3-button" 
               value="">결재 진행함</li>
 					<li class="w3-bar-item w3-button" 
-              value="">결재 대기함</li>
+              value="./waitdoclist.do">결재 대기함</li>
 					<li class="w3-bar-item w3-button"
 						  value="./completedoc.do">결재 완료함</li>
 					<li class="w3-bar-item w3-button" 

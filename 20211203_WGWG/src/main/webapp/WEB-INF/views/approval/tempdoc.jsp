@@ -19,7 +19,7 @@
 		
 		detailMove(state);
 		
-		search();
+// 		search();
 				
 		
 	});

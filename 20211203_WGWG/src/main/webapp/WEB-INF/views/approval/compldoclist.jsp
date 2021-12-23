@@ -27,11 +27,18 @@
 		
 		detailMove(state);
 		
-		search();
+// 		search();
 
 	});
 	
-
+	function search1(){
+		alert('검색할게');
+	
+		$('#index').attr('value',0);
+		$('#pageStartNum').attr('value',1);
+		AppPaging();
+	
+}
 
 </script>
 
@@ -96,7 +103,7 @@ th, td {
 			
 			<div id="search">
 					<input type="text" placeholder="문서제목으로 검색" id="searchKeyword" name="title" value="${paging.searchkeyword}"> 
-					<input type="submit" id="searchbtn"value="검색">
+					<input type="button" id="searchbtn"value="검색" onclick="search1()">
 				</div>
 			</ul>
 			<hr>

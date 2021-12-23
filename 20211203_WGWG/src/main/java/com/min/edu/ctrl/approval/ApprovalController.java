@@ -69,13 +69,21 @@ public class ApprovalController {
 		  doc.setEmp_no(empno);
 //		  doc.setApp_doc_st("완료");
 		   
+		  String active = request.getParameter("app_chk");
+			if(request.getParameter("active") != null) {
+				
+				active = request.getParameter("active");
+			}else {
+				active = "1";
+			}
+		  
 	      logger.info("ApprovalController 전체글 조회 List");
 	      
 	      Approval_Page paging = new Approval_Page(
 	               request.getParameter("index"),
 	               request.getParameter("pageStartNum"),
 	               request.getParameter("listCnt"),
-	               request.getParameter("app_chk"),
+	               active,
 	               request.getParameter("searchKeyword"),
 	               request.getParameter("active")
 	            );
@@ -85,7 +93,7 @@ public class ApprovalController {
 		
 		System.out.println(paging);
 	      
-		model.addAttribute("paging",paging);
+		  model.addAttribute("paging",paging);
 	      model.addAttribute("doclists", doclists);
 	      
 	      session.setAttribute("loc", "./approval/mydoclist");
@@ -245,9 +253,12 @@ public class ApprovalController {
 
 		// 내 결재 대기 상태 n로 변경
 		Approval_Doc doc = approvalServiceImpl.selectOneDoc(docno);
-		Approval_line appline = doc.getAlvo();
-		int lineNo = approvalServiceImpl.selectOneDoc(docno).getApp_line_no();
-		appline.setApp_line_no(lineNo);
+	
+		Approval_line appline = approvalServiceImpl.selectLine(doc.getApp_line_no());
+		System.out.println("appline : " + appline);
+		
+		
+		System.out.println("라인넘버 :: " + appline.getApp_line_no() + "!!!!");
 	
 		String jsonObj = appline.getApproval();
 		
@@ -271,6 +282,7 @@ public class ApprovalController {
 			JsonElement empJson4 = temp.get("approval_dt");
 			JsonElement empJson5 = temp.get("waiting");
 			JsonElement empJson6 = temp.get("signimg");
+			
 			
 
 			System.out.println(
@@ -369,6 +381,7 @@ public class ApprovalController {
 
 		int docno = Integer.parseInt(req.getParameter("docNo"));
 		String reason = req.getParameter("reason");
+		int empno = 2; //session값 받아오기
 
 		// 현재시간
 		Date date = new Date(System.currentTimeMillis());
@@ -376,9 +389,9 @@ public class ApprovalController {
 		String nowTime = format.format(date);
 
 		// 내 결재 대기 상태 n로 변경
-		Approval_line appline = approvalServiceImpl.selectOneDoc(docno).getAlvo();
 		int lineNo = approvalServiceImpl.selectOneDoc(docno).getApp_line_no();
-		appline.setApp_line_no(lineNo);
+		Approval_line appline = approvalServiceImpl.selectLine(lineNo);
+		
 		
 		String jsonObj = appline.getApproval();
 		
@@ -405,8 +418,8 @@ public class ApprovalController {
 					"Json정보 : " + empJson1 + ", " + empJson2 + ", " + empJson3 + ", " + empJson4 + ", " + empJson5);
 
 			// 1은 세션에 있는 회원 번호
-			// JSONARRAY에서 결재자 회원번호와 로그인한 회원번호 동일시
-			if (empJson1.getAsInt() == 2) {
+			// JSONARRAY에서 결재자 회원번호와 로그인한 회원번호 동일시 
+			if (empJson1.getAsInt() == empno) {
 
 				// APPROVAL[i].approval_st(승인여부) 값을 -> '반려'로 변경
 				approver = new Approver(empJson1.getAsInt(), // 결재자 회원번호
@@ -490,6 +503,7 @@ public class ApprovalController {
 		}else {
 			active = "1";
 		}
+		
 		Approval_Page paging = new Approval_Page(
 	               request.getParameter("index"),
 	               request.getParameter("pageStartNum"),
@@ -498,6 +512,7 @@ public class ApprovalController {
 	               request.getParameter("searchKeyword"),
 	               request.getParameter("active")
 	            );
+		
 		doc.setPaging(paging);
 		
 		System.out.println(paging);
@@ -512,14 +527,15 @@ public class ApprovalController {
 		if(active.equals("2")) {
 			
 			paging.setTotal(approvalServiceImpl.selectTotalPagingApp(doc));
-			System.out.println("paging 마지막 번호: " + paging.getTotal());
+			System.out.println("active: "+  active +" paging 마지막 번호: " + paging.getTotal());
 		}else {
 			
 			paging.setTotal(approvalServiceImpl.selectTotalPaging(doc));
-			System.out.println("paging 마지막 번호: " + paging.getTotal());
+			System.out.println("active: "+  active+ " paging 마지막 번호: " + paging.getTotal());
 		}
 		
 		
+		System.out.println(paging);
 
 		model.addAttribute("doclist1", doclist1);
 		model.addAttribute("doclist2", doclist2);
@@ -617,20 +633,53 @@ public class ApprovalController {
 		return "/approval/refdoclist";
 	}
 	
-	// 문서 상세 화면으로 이동"docno":no, "docBox":docBox
-	@ResponseBody
-	@RequestMapping(value="/detailAjax.do", method=RequestMethod.POST)
-	public Map<String,Object>  detailAjax(Model model, String docno, String docBox) {
-		
-		System.out.println("문서함 위치: " + docBox);
-
-		System.out.println("ajax 요청 도착!" + docno + ", "  + docBox);
-		Map<String,Object> map = new HashMap<String,Object>();
-		map.put("docno", docno);
-		map.put("docBox", docBox);
 	
-		return map;
+	@GetMapping(value="/waitdoclist.do")
+	public String waitdoclist(Model model, HttpServletRequest request) {
+		logger.info("대기 문서함");
+		Approval_Doc doc = new Approval_Doc();
+		int empno = 3;
+		doc.setEmp_no(empno);
+//		doc.setApp_doc_st("대기");
+		String active = "0";
+		
+		Approval_Page paging = new Approval_Page(
+	               request.getParameter("index"),
+	               request.getParameter("pageStartNum"),
+	               request.getParameter("listCnt"),
+	               request.getParameter("app_chk"),
+	               request.getParameter("searchKeyword"),
+	               request.getParameter("active")
+	            );
+		doc.setPaging(paging);
+		
+		
+		System.out.println(paging);
+		
+		List<Approval_Doc> doclist1 = approvalServiceImpl.selectListWait(doc);
+		paging.setTotal(approvalServiceImpl.selectTotalPagingWait(doc));
+		model.addAttribute("doclist1", doclist1);
+		model.addAttribute("paging",paging);
+
+		
+		session.setAttribute("loc", "./waitdoclist.do");
+		return "/approval/waitdoclist";
 	}
+	
+	// 문서 상세 화면으로 이동"docno":no, "docBox":docBox
+//	@ResponseBody
+//	@RequestMapping(value="/detailAjax.do", method=RequestMethod.POST)
+//	public Map<String,Object>  detailAjax(Model model, String docno, String docBox) {
+//		
+//		System.out.println("문서함 위치: " + docBox);
+//
+//		System.out.println("ajax 요청 도착!" + docno + ", "  + docBox);
+//		Map<String,Object> map = new HashMap<String,Object>();
+//		map.put("docno", docno);
+//		map.put("docBox", docBox);
+//	
+//		return map;
+//	}
 	
 	@ResponseBody
 	@RequestMapping(value="/reqAjax.do", method=RequestMethod.POST)
@@ -643,68 +692,68 @@ public class ApprovalController {
 		return map;
 	}
 
-	@GetMapping(value = "/searchdoclist.do")
-	public String searchdoclist2(String title, String toggle, Model model) {
-		
-		logger.info("완료 문서함");
-		Approval_Doc doc = new Approval_Doc();
-		int empno = 1;
-		doc.setEmp_no(empno);
-		doc.setApp_doc_st("완료");
-		
-		List<Approval_Doc> searchlist1 = new ArrayList<Approval_Doc>();
-		List<Approval_Doc> searchlist2 = new ArrayList<Approval_Doc>();
-		
-		// 송신
-		List<Approval_Doc> doclist1 = approvalServiceImpl.selectListDocSt(doc);
-		for (Approval_Doc doc1 : doclist1) {
-			if(doc1.getApp_doc_title().contains(title)) {
-				searchlist1.add(doc1);
-			}
-		}
-
-		// 수신경우
-
-		List<Approval_Doc> doclist2 = approvalServiceImpl.selectListDocStApp(doc);
-		
-		
-		for (Approval_Doc doc2 : doclist2) {
-			if(doc2.getApp_doc_title().contains(title)) {
-				searchlist2.add(doc2);
-			}
-		}
-		
-		model.addAttribute("doclist1", searchlist1);
-		model.addAttribute("doclist2", searchlist2);
-		
-		return "/approval/compldoclist";
-	}
+//	@GetMapping(value = "/searchdoclist.do")
+//	public String searchdoclist2(String title, String toggle, Model model) {
+//		
+//		logger.info("완료 문서함");
+//		Approval_Doc doc = new Approval_Doc();
+//		int empno = 1;
+//		doc.setEmp_no(empno);
+//		doc.setApp_doc_st("완료");
+//		
+//		List<Approval_Doc> searchlist1 = new ArrayList<Approval_Doc>();
+//		List<Approval_Doc> searchlist2 = new ArrayList<Approval_Doc>();
+//		
+//		// 송신
+//		List<Approval_Doc> doclist1 = approvalServiceImpl.selectListDocSt(doc);
+//		for (Approval_Doc doc1 : doclist1) {
+//			if(doc1.getApp_doc_title().contains(title)) {
+//				searchlist1.add(doc1);
+//			}
+//		}
+//
+//		// 수신경우
+//
+//		List<Approval_Doc> doclist2 = approvalServiceImpl.selectListDocStApp(doc);
+//		
+//		
+//		for (Approval_Doc doc2 : doclist2) {
+//			if(doc2.getApp_doc_title().contains(title)) {
+//				searchlist2.add(doc2);
+//			}
+//		}
+//		
+//		model.addAttribute("doclist1", searchlist1);
+//		model.addAttribute("doclist2", searchlist2);
+//		
+//		return "/approval/compldoclist";
+//	}
 	
-	@ResponseBody
-	@RequestMapping(value = "/pagingAjax.do", method = RequestMethod.POST)
-	public Map<String, Object> pagingAjax(HttpServletRequest request) {
-		String index = request.getParameter("index");
-		String pageStartNum = request.getParameter("pageStartNum");
-		String listCnt = request.getParameter("listCnt");
-		String app_chk = request.getParameter("app_chk");
-		String searchKeyword = request.getParameter("searchKeyword");
-		String active = request.getParameter("active");
-		
-	
-		System.out.println("ajax 전송 완료! ");
-		System.out.println(index +" " + pageStartNum  +" " +listCnt  +" " +app_chk  +" " +searchKeyword + " active: "+ active);
-		
-		Map<String, Object> map = new HashMap<String, Object>();
-
-		map.put("index", index);
-		map.put("pageStartNum", pageStartNum);
-		map.put("listCnt", listCnt);
-		map.put("app_chk", app_chk);
-		map.put("searchKeyword", searchKeyword);
-		map.put("active", active);
-		
-		return map;
-	}
+//	@ResponseBody
+//	@RequestMapping(value = "/pagingAjax.do", method = RequestMethod.POST)
+//	public Map<String, Object> pagingAjax(HttpServletRequest request) {
+//		String index = request.getParameter("index");
+//		String pageStartNum = request.getParameter("pageStartNum");
+//		String listCnt = request.getParameter("listCnt");
+//		String app_chk = request.getParameter("app_chk");
+//		String searchKeyword = request.getParameter("searchKeyword");
+//		String active = request.getParameter("active");
+//		
+//	
+//		System.out.println("ajax 전송 완료! ");
+//		System.out.println(index +" " + pageStartNum  +" " +listCnt  +" " +app_chk  +" " +searchKeyword + " active: "+ active);
+//		
+//		Map<String, Object> map = new HashMap<String, Object>();
+//
+//		map.put("index", index);
+//		map.put("pageStartNum", pageStartNum);
+//		map.put("listCnt", listCnt);
+//		map.put("app_chk", app_chk);
+//		map.put("searchKeyword", searchKeyword);
+//		map.put("active", active);
+//		
+//		return map;
+//	}
 
 	
 	

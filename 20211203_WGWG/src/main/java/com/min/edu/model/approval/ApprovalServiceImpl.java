@@ -76,8 +76,8 @@ public class ApprovalServiceImpl implements IApprovalService {
 	}
 
 	@Override
-	public List<Approval_Doc> selectListWait(Approver approver) {
-		return dao.selectListWait(approver);
+	public List<Approval_Doc> selectListWait(Approval_Doc doc) {
+		return dao.selectListWait(doc);
 	}
 
 	@Override
@@ -125,6 +125,16 @@ public class ApprovalServiceImpl implements IApprovalService {
 	public int selectTotalPagingAll(Approval_Doc doc) {
 		
 		return dao.selectTotalPagingAll(doc);
+	}
+
+	@Override
+	public Approval_line selectLine(int appLineNo) {
+		return dao.selectLine(appLineNo);
+	}
+
+	@Override
+	public int selectTotalPagingWait(Approval_Doc doc) {
+		return dao.selectTotalPagingWait(doc);
 	}
 
 
